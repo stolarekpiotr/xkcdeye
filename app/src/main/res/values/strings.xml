@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">xkcd eye</string>
+    <string name="button_ui_first_arrow"><![CDATA[|<]]></string>
+    <string name="button_ui_previous_arrow"><![CDATA[<]]></string>
+    <string name="button_ui_next_arrow"><![CDATA[>]]></string>
+    <string name="button_ui_last_arrow"><![CDATA[>|]]></string>
+    <string name="text_view_title_placeholder">Title</string>
+</resources>
