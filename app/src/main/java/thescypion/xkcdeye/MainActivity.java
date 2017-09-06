@@ -16,20 +16,16 @@ import com.github.chrisbanes.photoview.PhotoView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 import thescypion.xkcdeye.XkcdAPI.Comic;
+import thescypion.xkcdeye.XkcdAPI.ComicReceivedListener;
 import thescypion.xkcdeye.XkcdAPI.XkcdController;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ComicReceivedListener {
 
     Comic comic;
     XkcdController xkcdController;
-    CompositeDisposable disposable = new CompositeDisposable();
+    CompositeDisposable disposable;
 
     Integer id = 1;
     Integer lastId = 999;
@@ -58,9 +54,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setNumberPickerDialog();
-
-        xkcdController = new XkcdController();
-        getNewestComic();
+        xkcdController = new XkcdController(this);
+        disposable = new CompositeDisposable();
+        getComic(XkcdController.NEWEST);
     }
 
     private void setNumberPickerDialog() {
@@ -80,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUI(Comic comic) {
-        this.comic = comic;
         pbLoad.setVisibility(View.GONE);
         tvTitle.setText(comic.getTitle());
         tvDate.setText(comic.getDateString());
@@ -93,42 +88,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getComic(Integer id) {
-        this.id = (id < 1) ? 1 : id;
         pbLoad.setVisibility(View.VISIBLE);
-        Single<Comic> call = xkcdController.getComic(this.id);
-        Disposable getComic = call
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Comic>() {
-                    @Override
-                    public void accept(Comic comic) throws Exception {
-                        updateUI(comic);
-                    }
-                });
-        disposable.add(getComic);
-    }
-
-    private void getNewestComic() {
-        pbLoad.setVisibility(View.VISIBLE);
-        Single<Comic> call = xkcdController.getNewestComic();
-        Disposable getComic = call
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Comic>() {
-                    @Override
-                    public void accept(Comic comic) throws Exception {
-                        updateUI(comic);
-                        lastId = comic.getNum();
-                        id = lastId;
-                        numberPicker.setMaxValue(lastId);
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                    }
-                });
-        disposable.add(getComic);
+        disposable.add(xkcdController.getComic(id));
     }
 
     @Override
@@ -170,4 +131,14 @@ public class MainActivity extends AppCompatActivity {
         numberPickerDialog.show();
     }
 
+    @Override
+    public void onComicReceived(Comic comic, Boolean newest) {
+        this.comic = comic;
+        id = comic.getNum();
+        if (newest) {
+            lastId = comic.getNum();
+            numberPicker.setMaxValue(lastId);
+        }
+        updateUI(comic);
+    }
 }

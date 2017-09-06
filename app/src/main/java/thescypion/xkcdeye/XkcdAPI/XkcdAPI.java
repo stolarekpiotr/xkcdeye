@@ -5,11 +5,6 @@ import retrofit2.http.GET;
 import retrofit2.http.Path;
 
 public interface XkcdAPI {
-
     @GET("{id}/info.0.json")
-    Single<Comic> loadComic(@Path("id") Integer id);
-
-    @GET("info.0.json")
-    Single<Comic> getNewestComic();
-
+    Single<Comic> loadComic(@Path("id") String id);
 }
