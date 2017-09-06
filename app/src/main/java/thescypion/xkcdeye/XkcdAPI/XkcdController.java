@@ -13,18 +13,27 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class XkcdController {
-
     public static final int NEWEST = -1;
     private static final String BASE_URL = "https://xkcd.com/";
+    private static final Integer MIN_COMIC_ID = 1;
+    private static XkcdController instance;
+    public Integer MAX_COMIC_ID = null;
 
     private XkcdAPI xkcdAPI;
     private ComicReceivedListener listener;
 
-    public XkcdController(ComicReceivedListener listener) {
-        this.listener = listener;
+    private XkcdController() {
         Gson gson = createGson();
         Retrofit retrofit = createRetrofit(gson);
         setXkcdApi(retrofit);
+    }
+
+    public static XkcdController getInstance(ComicReceivedListener listener) {
+        if (instance == null) {
+            instance = new XkcdController();
+        }
+        instance.listener = listener;
+        return instance;
     }
 
     private Gson createGson() {
@@ -47,16 +56,24 @@ public class XkcdController {
 
     public Disposable getComic(Integer id) {
         final Boolean isNewest = (id == NEWEST);
-        Single<Comic> call = xkcdAPI.loadComic((isNewest) ? "" : id.toString());
-        Disposable disposable = call
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Comic>() {
-                    @Override
-                    public void accept(Comic comic) throws Exception {
-                        listener.onComicReceived(comic, isNewest);
-                    }
-                });
+        Disposable disposable = null;
+        if (isNewest || (id >= MIN_COMIC_ID && id <= MAX_COMIC_ID)) {
+            Single<Comic> call = xkcdAPI.loadComic((isNewest) ? "" : id.toString());
+            disposable = call
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<Comic>() {
+                        @Override
+                        public void accept(Comic comic) throws Exception {
+                            if (MAX_COMIC_ID == null && isNewest) {
+                                MAX_COMIC_ID = comic.getNum();
+                            }
+                            listener.onComicReceived(comic, isNewest);
+                        }
+                    });
+        }
         return disposable;
     }
+
+
 }

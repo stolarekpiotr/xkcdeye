@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">xkcd eye</string>
-    <string name="button_ui_first_arrow"><![CDATA[|<]]></string>
-    <string name="button_ui_previous_arrow"><![CDATA[<]]></string>
-    <string name="button_ui_next_arrow"><![CDATA[>]]></string>
-    <string name="button_ui_last_arrow"><![CDATA[>|]]></string>
+    <string name="button_ui_first_arrow">Go to first comic</string>
+    <string name="button_ui_previous_arrow">Go to previous comic</string>
+    <string name="button_ui_next_arrow">Go to next comic</string>
+    <string name="button_ui_last_arrow">Go to last comic</string>
     <string name="text_view_title_placeholder">Title</string>
     <string name="button_ui_goto">Go to</string>
     <string name="dialog_ui_title">Pick comic id</string>
+    <string name="label_ui_pickid_string">Select comic</string>
 </resources>
