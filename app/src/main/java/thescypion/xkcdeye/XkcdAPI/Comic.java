@@ -4,8 +4,10 @@ public class Comic {
     private Integer num;
     private String title;
     private String img;
-    private String transcript;
     private String alt;
+    private Integer day;
+    private Integer month;
+    private Integer year;
 
     public Integer getNum() {
         return num;
@@ -31,14 +33,6 @@ public class Comic {
         this.img = img;
     }
 
-    public String getTranscript() {
-        return transcript;
-    }
-
-    public void setTranscript(String transcript) {
-        this.transcript = transcript;
-    }
-
     public String getAlt() {
         return alt;
     }
@@ -49,7 +43,34 @@ public class Comic {
 
     @Override
     public String toString() {
-        return String.format("Num: %4$d \n Title: %1$s \n Img: %2$s \n Transcript: %3$s", title, img, transcript, num);
+        return String.format("Num: %4$d \n Title: %1$s \n Img: %2$s", title, img, num);
     }
 
+    public Integer getDay() {
+        return day;
+    }
+
+    public void setDay(Integer day) {
+        this.day = day;
+    }
+
+    public Integer getMonth() {
+        return month;
+    }
+
+    public void setMonth(Integer month) {
+        this.month = month;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public void setYear(Integer year) {
+        this.year = year;
+    }
+
+    public String getDateString() {
+        return String.format("%1$d.%2$d.%3$d", day, month, year);
+    }
 }

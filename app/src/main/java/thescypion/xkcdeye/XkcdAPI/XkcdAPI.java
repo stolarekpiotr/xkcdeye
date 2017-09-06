@@ -9,4 +9,7 @@ public interface XkcdAPI {
     @GET("{id}/info.0.json")
     Single<Comic> loadComic(@Path("id") Integer id);
 
+    @GET("info.0.json")
+    Single<Comic> getNewestComic();
+
 }

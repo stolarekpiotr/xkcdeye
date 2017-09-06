@@ -12,19 +12,23 @@ public class XkcdController {
 
     static final String BASE_URL = "https://xkcd.com/";
 
+    Gson gson = new GsonBuilder()
+            .setLenient()
+            .create();
+
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build();
+
+    XkcdAPI xkcdAPI = retrofit.create(XkcdAPI.class);
+
     public Single<Comic> getComic(Integer id) {
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-
-        XkcdAPI xkcdAPI = retrofit.create(XkcdAPI.class);
-
         return xkcdAPI.loadComic(id);
+    }
+
+    public Single<Comic> getNewestComic() {
+        return xkcdAPI.getNewestComic();
     }
 }

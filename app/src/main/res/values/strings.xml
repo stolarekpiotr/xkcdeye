@@ -5,4 +5,6 @@
     <string name="button_ui_next_arrow"><![CDATA[>]]></string>
     <string name="button_ui_last_arrow"><![CDATA[>|]]></string>
     <string name="text_view_title_placeholder">Title</string>
+    <string name="button_ui_goto">Go to</string>
+    <string name="dialog_ui_title">Pick comic id</string>
 </resources>
