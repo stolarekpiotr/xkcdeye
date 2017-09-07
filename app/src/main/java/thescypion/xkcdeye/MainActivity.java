@@ -23,11 +23,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import thescypion.xkcdeye.XkcdAPI.Comic;
-import thescypion.xkcdeye.XkcdAPI.ComicReceivedListener;
 import thescypion.xkcdeye.XkcdAPI.XkcdController;
 
-public class MainActivity extends AppCompatActivity implements ComicReceivedListener {
+public class MainActivity extends AppCompatActivity implements Consumer<Comic> {
     private final static String ID_VALUE_KEY = "idvaluekey";
     @BindView(R.id.tvComicId)
     TextView tvComicId;
@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements ComicReceivedList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         if (isNetworkAvailable()) {
             initialize(savedInstanceState);
         } else {
@@ -61,13 +62,10 @@ public class MainActivity extends AppCompatActivity implements ComicReceivedList
     }
 
     private void initialize(Bundle savedInstanceState) {
-        ButterKnife.bind(this);
         setNumberPickerDialog();
         xkcdController = XkcdController.getInstance(this);
         disposable = new CompositeDisposable();
-        if (savedInstanceState == null) {
-            getComic(XkcdController.NEWEST);
-        } else {
+        if (savedInstanceState != null) {
             id = savedInstanceState.getInt(ID_VALUE_KEY);
             numberPicker.setMaxValue(xkcdController.MAX_COMIC_ID);
             getComic(id);
@@ -164,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements ComicReceivedList
 
     @OnClick(R.id.btnLast)
     public void goToLastComic() {
-        getComic(XkcdController.NEWEST);
+        getComic(xkcdController.MAX_COMIC_ID);
     }
 
     @OnClick(R.id.ivComicImage)
@@ -175,16 +173,14 @@ public class MainActivity extends AppCompatActivity implements ComicReceivedList
     @OnClick(R.id.tvComicId)
     public void onIdClick() {
         numberPicker.setValue(id);
+        numberPicker.setMaxValue(xkcdController.MAX_COMIC_ID);
         numberPickerDialog.show();
     }
 
     @Override
-    public void onComicReceived(Comic comic, Boolean newest) {
+    public void accept(Comic comic) throws Exception {
         this.alt = comic.getAlt();
         id = comic.getNum();
-        if (newest) {
-            numberPicker.setMaxValue(xkcdController.MAX_COMIC_ID);
-        }
         updateUI(comic);
     }
 }
