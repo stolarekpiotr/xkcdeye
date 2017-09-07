@@ -7,5 +7,7 @@
     <string name="text_view_title_placeholder">Title</string>
     <string name="button_ui_goto">Go to</string>
     <string name="dialog_ui_title">Pick comic id</string>
-    <string name="label_ui_pickid_string">Select comic</string>
+    <string name="text_view_ui_pickid_string">Select comic</string>
+    <string name="toast_error_no_connection">No connection</string>
+    <string name="alertdialog_error_no_connection_desc">Please turn on internet connection first</string>
 </resources>

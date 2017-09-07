@@ -1,7 +1,12 @@
 package thescypion.xkcdeye;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -34,8 +39,10 @@ public class MainActivity extends AppCompatActivity implements ComicReceivedList
     PhotoView ivComicImage;
     @BindView(R.id.pbLoad)
     ProgressBar pbLoad;
+
     Dialog numberPickerDialog;
     NumberPicker numberPicker;
+    Dialog noConnectionDialog;
     private String alt = "";
     private XkcdController xkcdController;
     private CompositeDisposable disposable;
@@ -45,6 +52,15 @@ public class MainActivity extends AppCompatActivity implements ComicReceivedList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (isNetworkAvailable()) {
+            initialize(savedInstanceState);
+        } else {
+            noConnectionDialog = createNoConnectionDialog(this);
+            noConnectionDialog.show();
+        }
+    }
+
+    private void initialize(Bundle savedInstanceState) {
         ButterKnife.bind(this);
         setNumberPickerDialog();
         xkcdController = XkcdController.getInstance(this);
@@ -86,13 +102,35 @@ public class MainActivity extends AppCompatActivity implements ComicReceivedList
     }
 
     private void getComic(Integer id) {
-        pbLoad.setVisibility(View.VISIBLE);
-        Disposable d = xkcdController.getComic(id);
-        if (d != null) {
-            disposable.add(d);
+        if (isNetworkAvailable()) {
+            pbLoad.setVisibility(View.VISIBLE);
+            Disposable d = xkcdController.getComic(id);
+            if (d != null) {
+                disposable.add(d);
+            } else {
+                pbLoad.setVisibility(View.GONE);
+            }
         } else {
-            pbLoad.setVisibility(View.GONE);
+            Toast.makeText(this, getString(R.string.toast_error_no_connection), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private Dialog createNoConnectionDialog(final MainActivity mainActivity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.alertdialog_error_no_connection_desc)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                        mainActivity.finish();
+                    }
+                });
+        return builder.create();
     }
 
     @Override

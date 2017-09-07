@@ -3,11 +3,14 @@ package thescypion.xkcdeye.XkcdAPI;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.concurrent.TimeUnit;
+
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -45,9 +48,18 @@ public class XkcdController {
     private Retrofit createRetrofit(Gson gson) {
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
+                .client(getHttpClient())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
+    }
+
+    private OkHttpClient getHttpClient() {
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .readTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .build();
+        return okHttpClient;
     }
 
     private void setXkcdApi(Retrofit retrofit) {
@@ -69,6 +81,11 @@ public class XkcdController {
                                 MAX_COMIC_ID = comic.getNum();
                             }
                             listener.onComicReceived(comic, isNewest);
+                        }
+                    }, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            throwable.printStackTrace();
                         }
                     });
         }
